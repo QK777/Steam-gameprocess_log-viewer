@@ -17,6 +17,11 @@
     button{ position:relative; background:#162033; border:1px solid #243244; color:#e6edf3; border-radius:10px; padding:10px 12px; cursor:pointer;
       overflow:hidden; transition: transform .06s ease, border-color .12s ease; display:inline-flex; align-items:center; gap:8px; }
     button:hover{ border-color:#3b82f6; } button:active{ transform: translateY(1px); } button:disabled{ opacity:.5; cursor:not-allowed; }
+    #fetchOnceBtn:disabled{
+      opacity: .35;
+      filter: grayscale(1);
+      cursor: not-allowed;
+    }
 
     .ripple{ position:absolute; border-radius:999px; transform: scale(0); animation: ripple .55s ease-out; background: rgba(59,130,246,.35); pointer-events:none; }
     @keyframes ripple{ to{ transform: scale(14); opacity:0; } }
@@ -85,7 +90,7 @@
     </button>
     <input id="legacyFile" type="file" accept=".txt,.log" style="display:none" />
 
-    <button id="fetchOnceBtn" title="ローカルヘルパーから1回取得（任意）">
+    <button id="fetchOnceBtn" title="ローカルヘルパーから1回取得（任意）" disabled>
       <span class="spinner"></span><span>ヘルパーで取得</span>
     </button>
 
