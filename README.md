@@ -1,0 +1,2 @@
+# Steam-gameprocess_log-viewer
+Steamのゲーム起動と終了の履歴を確認するためのツール
