@@ -5,49 +5,69 @@
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Steam gameprocess_log ビューア</title>
   <style>
-    :root { color-scheme: dark; }
+    :root{
+      color-scheme: dark;
+
+      /* VS Code Dark+ (approx) */
+      --bg: #1e1e1e;
+      --panel: #252526;
+      --surface: #1e1e1e;
+      --input: #3c3c3c;
+
+      --fg: #d4d4d4;
+      --muted: #9da5b4;
+
+      --border: #3c3c3c;
+      --border2: #2a2a2a;
+
+      --accent: #007acc;
+      --accentSoft: rgba(0,122,204,.12);
+      --ripple: rgba(0,122,204,.35);
+    }
     html, body { height:100%; }
-    body{ font-family: system-ui, -apple-system, Segoe UI, sans-serif; background:#0b0f14; color:#e6edf3; margin:0;
+    body{ font-family: system-ui, -apple-system, Segoe UI, sans-serif; background:var(--bg); color:var(--fg); margin:0;
       display:flex; flex-direction:column; overflow:hidden; }
-    header{ padding:16px 20px 14px; border-bottom:1px solid #1f2a37; background:#0b0f14; position:sticky; top:0; z-index:10; }
+    header{ padding:16px 20px 14px; border-bottom:1px solid var(--border); background:var(--panel); position:sticky; top:0; z-index:10; }
     h1{ margin:0 0 10px; font-size:18px; }
     .row{ display:flex; gap:12px; flex-wrap:wrap; align-items:center; }
     .subrow{ display:flex; gap:10px; flex-wrap:wrap; align-items:center; margin-top:10px; }
-    input[type="text"]{ background:#0b1220; border:1px solid #243244; color:#e6edf3; border-radius:10px; padding:10px 12px; min-width:220px; }
-    button{ position:relative; background:#162033; border:1px solid #243244; color:#e6edf3; border-radius:10px; padding:10px 12px; cursor:pointer;
+    input[type="text"]{ background:var(--input); border:1px solid var(--border); color:var(--fg); border-radius:10px; padding:10px 12px; min-width:220px; }
+    button{ position:relative; background:#2d2d30; border:1px solid var(--border); color:var(--fg); border-radius:10px; padding:10px 12px; cursor:pointer;
       overflow:hidden; transition: transform .06s ease, border-color .12s ease; display:inline-flex; align-items:center; gap:8px; }
-    button:hover{ border-color:#3b82f6; } button:active{ transform: translateY(1px); } button:disabled{ opacity:.5; cursor:not-allowed; }
+    button:hover{ border-color:var(--accent); } button:active{ transform: translateY(1px); } button:disabled{ opacity:.5; cursor:not-allowed; }
     #fetchOnceBtn:disabled{
       opacity: .35;
       filter: grayscale(1);
       cursor: not-allowed;
     }
 
-    .ripple{ position:absolute; border-radius:999px; transform: scale(0); animation: ripple .55s ease-out; background: rgba(59,130,246,.35); pointer-events:none; }
+    .ripple{ position:absolute; border-radius:999px; transform: scale(0); animation: ripple .55s ease-out; background: var(--ripple); pointer-events:none; }
     @keyframes ripple{ to{ transform: scale(14); opacity:0; } }
-    button.busy{ pointer-events:none; border-color:#3b82f6; box-shadow: 0 0 0 3px rgba(59,130,246,.12) inset; }
-    .spinner{ display:none; width:14px; height:14px; border-radius:50%; border:2px solid rgba(230,237,243,.25); border-top-color: rgba(230,237,243,.85);
+    button.busy{ pointer-events:none; border-color:var(--accent); box-shadow: 0 0 0 3px var(--accentSoft) inset; }
+    .spinner{ display:none; width:14px; height:14px; border-radius:50%; border:2px solid rgba(212,212,212,.25); border-top-color: rgba(212,212,212,.85);
       animation: spin .8s linear infinite; }
     button.busy .spinner{ display:inline-block; }
     @keyframes spin{ to{ transform: rotate(360deg); } }
 
-    .muted{ color:#9fb0c3; font-size:12px; }
+    .muted{ color:var(--muted); font-size:12px; }
     .mono{ font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size:12px; }
-    .pill{ display:inline-block; padding:2px 8px; border-radius:999px; border:1px solid #243244; color:#cbd5e1; font-size:12px; white-space:nowrap; }
-    .pathbox{ background:#0b1220; border:1px solid #243244; border-radius:10px; padding:8px 10px; }
+    .pill{ display:inline-block; padding:2px 8px; border-radius:999px; border:1px solid var(--border); color:var(--fg); font-size:12px; white-space:nowrap; }
+    .pathbox{ background:var(--input); border:1px solid var(--border); border-radius:10px; padding:8px 10px; }
 
     main{ flex:1 1 auto; overflow:hidden; }
-    .tablecard{ margin: 14px 20px 16px; background:#0f172a; border:1px solid #1f2a37; border-radius:12px; width: 70%; min-width:720px; height: calc(100% - 30px); overflow:auto; }
+    .tablecard{ margin: 14px 20px 16px; background:var(--surface); border:1px solid var(--border); border-radius:12px; width: 70%; min-width:720px; height: calc(100% - 30px); overflow:auto; }
     table{ width:100%; border-collapse:collapse; }
-    th, td{ border-bottom:1px solid #1f2a37; padding:10px 8px; vertical-align:top; }
-    th{ text-align:left; font-size:12px; color:#9fb0c3; position:sticky; top:0; z-index:2; background:#0f172a; user-select:none; cursor:pointer; white-space:nowrap; }
+    th, td{ border-bottom:1px solid var(--border2); padding:10px 8px; vertical-align:top; }
+    th{ text-align:left; font-size:12px; color:var(--muted); position:sticky; top:0; z-index:2; background:var(--panel); user-select:none; cursor:pointer; white-space:nowrap; }
     th .sort{ margin-left:6px; opacity:.75; font-size:11px; }
     .nowrap{ white-space:nowrap; overflow-wrap:normal; word-break:normal; }
-    .col-time{ min-width: 200px; } .col-dur{ min-width: 90px; } .col-app{ min-width: 90px; }
+    .col-time{ width: 170px; }
+    .col-dur{  width: 90px; }
+    .col-app{  width: 90px; text-align:right; } 
 
     /* テーブルを内容幅にして、列幅を固定レイアウトで厳格化 */
     .tablecard table {
-      width: max-content;      /* これが効く：画面幅に引っ張られない */
+      width: 100%;      /* これが効く：画面幅に引っ張られない */
       table-layout: fixed;     /* 幅指定をちゃんと守らせる */
     }
 
@@ -59,24 +79,23 @@
     .tablecard th:nth-child(5), .tablecard td:nth-child(5) { width: 90px;  white-space: nowrap; }
 
     /* ゲーム列は520pxで打ち止め + 省略 */
-    .tablecard th:nth-child(4), .tablecard td:nth-child(4) {
-      width: 520px;
+    .tablecard th:nth-child(4), .tablecard td:nth-child(4){
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
     }
-    #dragOverlay{ position:fixed; inset:0; background: rgba(11,15,20,.75); display:none; align-items:center; justify-content:center; z-index:9999; pointer-events:none; backdrop-filter: blur(2px); }
-    #dragOverlay .box{ border:2px dashed #3b82f6; border-radius:16px; padding:18px 22px; background: rgba(15,23,42,.55); text-align:center; max-width: 680px; }
-    #dragOverlay .title{ margin:0 0 6px; font-size:14px; } #dragOverlay .desc{ margin:0; color:#9fb0c3; font-size:12px; line-height:1.6; }
+    #dragOverlay{ position:fixed; inset:0; background: rgba(30,30,30,.75); display:none; align-items:center; justify-content:center; z-index:9999; pointer-events:none; backdrop-filter: blur(2px); }
+    #dragOverlay .box{ border:2px dashed var(--accent); border-radius:16px; padding:18px 22px; background: rgba(37,37,38,.65); text-align:center; max-width: 680px; }
+    #dragOverlay .title{ margin:0 0 6px; font-size:14px; } #dragOverlay .desc{ margin:0; color:var(--muted); font-size:12px; line-height:1.6; }
 
-    .copy-tip{ position: fixed; z-index: 20000; background: #111827; border: 1px solid #243244; color: #e6edf3; font-size: 12px;
+    .copy-tip{ position: fixed; z-index: 20000; background: var(--panel); border: 1px solid var(--border); color: var(--fg); font-size: 12px;
       padding: 6px 10px; border-radius: 10px; box-shadow: 0 10px 30px rgba(0,0,0,.45); opacity: 0; transform: translateY(6px);
       transition: opacity .12s ease, transform .12s ease; pointer-events: none; max-width: 70vw; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
     .copy-tip.show{ opacity: 1; transform: translateY(0); }
-    .copy-tip::after{ content:""; position:absolute; left:14px; top:100%; border:6px solid transparent; border-top-color:#243244; }
-    .copy-tip::before{ content:""; position:absolute; left:14px; top:100%; transform: translateY(-1px); border:6px solid transparent; border-top-color:#111827; }
+    .copy-tip::after{ content:""; position:absolute; left:14px; top:100%; border:6px solid transparent; border-top-color:var(--border); }
+    .copy-tip::before{ content:""; position:absolute; left:14px; top:100%; transform: translateY(-1px); border:6px solid transparent; border-top-color:var(--panel); }
 
-    .callout{ margin-top:10px; padding:10px 12px; border-radius:12px; border:1px solid #243244; background:#0b1220; }
+    .callout{ margin-top:10px; padding:10px 12px; border-radius:12px; border:1px solid var(--border); background:var(--input); }
   </style>
 </head>
 
@@ -90,7 +109,7 @@
     </button>
     <input id="legacyFile" type="file" accept=".txt,.log" style="display:none" />
 
-    <button id="fetchOnceBtn" title="ローカルヘルパーから1回取得（任意）" disabled>
+    <button id="fetchOnceBtn" title="ローカルヘルパーから1回取得（任意）">
       <span class="spinner"></span><span>ヘルパーで取得</span>
     </button>
 
@@ -445,6 +464,31 @@
     }
   });
 
+
+  function updateHelperAvailability(){
+    const host = (location.hostname || '').toLowerCase();
+    const proto = (location.protocol || '').toLowerCase();
+    const isLocalHost = (host === 'localhost' || host === '127.0.0.1');
+
+    // GitHub Pages(HTTPS) などから http://localhost へは Mixed Content でブロックされる
+    if (proto === 'https:' && !isLocalHost){
+      $fetchOnceBtn.disabled = true;
+      $fetchOnceBtn.title = 'このページがHTTPSだと http://localhost へのアクセスがブラウザでブロックされます（Mixed Content）。ローカルでHTTPサーバーから開くか、ヘルパーをHTTPS化してください。';
+      return 'blocked-mixed-content';
+    }
+
+    // file:// からはCORSで失敗することがある（ヘルパー側が許可していない場合）
+    if (proto === 'file:'){
+      $fetchOnceBtn.disabled = false;
+      $fetchOnceBtn.title = 'ローカルヘルパーから1回取得（file:// だとCORSで失敗する場合あり。http://localhost で開くと確実）';
+      return 'file-origin';
+    }
+
+    $fetchOnceBtn.disabled = false;
+    $fetchOnceBtn.title = 'ローカルヘルパーから1回取得（任意）';
+    return 'enabled';
+  }
+
   // Helper fetch once (button only)
   $fetchOnceBtn.addEventListener('click', async (e) => {
     addRipple(e);
@@ -464,6 +508,7 @@
 
   // Boot restore
   (function boot(){
+    const helperState = updateHelperAvailability();
     try{
       const raw = localStorage.getItem(LS_CACHE_KEY);
       if (raw){
@@ -478,7 +523,9 @@
         }
       }
     }catch(_){}
-    $status.textContent = '未読み込み：参照 / DnD / ヘルパーから取得';
+    $status.textContent = (helperState==='blocked-mixed-content')
+      ? '未読み込み：参照 / DnD（ヘルパーはHTTPS上では無効）'
+      : '未読み込み：参照 / DnD / ヘルパーから取得';
     updateSortIndicators();
   })();
 </script>
